@@ -23,9 +23,40 @@ font = pygame.font.SysFont("Arial", 20)
 nave_image = pygame.image.load('nave.png')
 nave_image = pygame.transform.scale(nave_image, (100, 100))  # Escalar la imagen a un tamaño adecuado
 
-# Cargar la imagen de transición
-img_correcta = pygame.image.load('IMG.png')  # Cambiar 'IMG.png' por el nombre de tu imagen
-img_correcta = pygame.transform.scale(img_correcta, (WIDTH, HEIGHT))  # Escalar la imagen al tamaño de la ventana
+# Cargar varias imágenes de transición para respuestas correctas
+correct_images = [
+    pygame.image.load('IMG1.png'),
+    pygame.image.load('IMG2.png'),
+    pygame.image.load('IMG3.png'),
+    pygame.image.load('IMG4.png'),
+    pygame.image.load('IMG5.png'),
+    pygame.image.load('IMG6.png'),
+    pygame.image.load('IMG7.png'),
+    pygame.image.load('IMG8.png'),
+    pygame.image.load('IMG9.png'),
+    pygame.image.load('IMG10.png')
+]
+# Escalar todas las imágenes al tamaño de la ventana
+correct_images = [pygame.transform.scale(img, (WIDTH, HEIGHT)) for img in correct_images]
+
+# Cargar varias imágenes de transición para respuestas incorrectas
+incorrect_images = [
+    pygame.image.load('IMGX1.png'),
+    pygame.image.load('IMGX2.png'),
+    pygame.image.load('IMGX3.png'),
+    pygame.image.load('IMGX4.png'),
+    pygame.image.load('IMGX5.png'),
+    pygame.image.load('IMGX6.png'),
+    pygame.image.load('IMGX7.png'),
+    pygame.image.load('IMGX8.png'),
+    pygame.image.load('IMGX9.png'),
+    pygame.image.load('IMGX10.png')
+]
+# Escalar todas las imágenes al tamaño de la ventana
+incorrect_images = [pygame.transform.scale(img, (WIDTH, HEIGHT)) for img in incorrect_images]
+
+# Inicializar el índice de imagen correcta/incorrecta
+current_image_index = 0
 
 # Inicializar el manejador de preguntas
 quiz = QuizHandler()
@@ -122,13 +153,37 @@ def draw_question(surface, question):
 def draw_game_over(surface):
     game_over_text = font.render("Game Over!", True, RED)
     surface.blit(game_over_text, (WIDTH // 2 - game_over_text.get_width() // 2, HEIGHT // 2 - 20))
-    restart_text = font.render("Presiona R para reiniciar", True, WHITE)
-    surface.blit(restart_text, (WIDTH // 2 - restart_text.get_width() // 2, HEIGHT // 2 + 10))
+
+# Función para mostrar la pantalla de inicio
+def show_start_screen():
+    # Cargar la imagen de la pantalla de inicio
+    start_image = pygame.image.load('start_screen.png')  # Asegúrate de que el archivo exista
+    start_image = pygame.transform.scale(start_image, (WIDTH, HEIGHT))  # Escalar la imagen a la ventana
+    while True:
+        win.fill(BLACK)
+        win.blit(start_image, (0, 0))  # Dibujar la imagen de la pantalla de inicio
+        
+        # Mostrar el mensaje "Presione S para iniciar"
+        start_message = font.render("Presione S para iniciar", True, WHITE)
+        win.blit(start_message, (WIDTH // 2 - start_message.get_width() // 2, HEIGHT - 40))  # Centrar en la parte inferior
+        
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_s:  # Esperar a que el jugador presione 'S'
+                return  # Salir de la pantalla de inicio
+
+# Llamar a la pantalla de inicio antes de comenzar el juego
+show_start_screen()
 
 # Juego principal
 running = True
 game_over = False
 show_image = False  # Estado para mostrar la imagen
+image_type = "correct"  # Define el tipo de imagen a mostrar
 while running:
     pygame.time.delay(30)
 
@@ -169,7 +224,7 @@ while running:
         if laser.y < 0:
             player.lasers.remove(laser)
 
-    # Mover los enemigos sincronizadamente y hacer que disparen
+    # Mover los enemigos
     for enemy in enemies:
         enemy.rect.x += enemy_dx
         enemy.update_cooldown()  # Actualizar cooldown de los enemigos
@@ -183,17 +238,22 @@ while running:
 
     # Comprobar colisiones entre los disparos del jugador y los enemigos
     for laser in player.lasers[:]:
-        for i, enemy in enumerate(enemies[:]):
+        for i, enemy in enumerate(enemies[:] ):
             if laser.colliderect(enemy.rect):
                 if quiz.check_answer(i):
                     # Respuesta correcta
-                    show_image = True  # Cambiar estado para mostrar la imagen
+                    show_image = True
+                    image_type = "correct"
+                    current_image_index = random.randint(0, len(correct_images) - 1)
                     place_enemies()  # Colocar nuevos enemigos (puedes ajustar según sea necesario)
                     # Aumentar la velocidad de los enemigos cada vez que se responde correctamente
                     enemy_dx += 0.5
                     enemy_dy += 1
                 else:
                     # Respuesta incorrecta
+                    show_image = True
+                    image_type = "incorrect"
+                    current_image_index = quiz.get_current_question_number() % len(incorrect_images)
                     player.lives -= 1  # Restar una vida
                 player.lasers.remove(laser)
                 break
@@ -215,21 +275,24 @@ while running:
 
     # Dibujar en la ventana
     win.fill(BLACK)
+
     if show_image:
-        win.blit(img_correcta, (0, 0))  # Dibujar la imagen de respuesta correcta
+        # Mostrar la imagen correcta o incorrecta
+        if image_type == "correct":
+            win.blit(correct_images[current_image_index], (0, 0))
+        else:
+            win.blit(incorrect_images[current_image_index], (0, 0))
     else:
-        player.draw(win)
+        # Dibujar el estado del juego
+        draw_lives(win, player.lives)
         draw_question(win, quiz.current_question)
+        player.draw(win)
         for enemy in enemies:
             enemy.draw(win)
 
-        # Mostrar las vidas del jugador en la pantalla
-        draw_lives(win, player.lives)
-
-        if game_over:
-            draw_game_over(win)
+    if game_over:
+        draw_game_over(win)
 
     pygame.display.update()
 
-# Finalizar Pygame
 pygame.quit()

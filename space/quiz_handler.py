@@ -1,26 +1,57 @@
+# quiz_handler.py
 import random
 
 class QuizHandler:
     def __init__(self):
         self.questions = [
             {
-                "question": "¿Cuál es la capital de Francia?",
-                "answers": ["Berlín", "Madrid", "París", "Roma"],
+                "question": "¿Pregunta 1?",
+                "answers": ["Incorrecta", "Incorrecta", "Correcta", "Incorrecta"],
                 "correct": 2
             },
             {
-                "question": "¿Cuál es la capital de España?",
-                "answers": ["Lisboa", "Madrid", "París", "Roma"],
+                "question": "¿Pregunta 2?",
+                "answers": ["Incorrecta", "Correcta", "Incorrecta", "Incorrecta"],
                 "correct": 1
             },
             {
-                "question": "¿Cuál es la capital de Italia?",
-                "answers": ["Berlín", "Madrid", "París", "Roma"],
+                "question": "¿Pregunta 3?",
+                "answers": ["Incorrecta", "Incorrecta", "Incorrecta", "Correcta"],
                 "correct": 3
             },
             {
-                "question": "¿Cuál es la capital de Alemania?",
-                "answers": ["Berlín", "Madrid", "París", "Roma"],
+                "question": "¿Pregunta 4?",
+                "answers": ["Correcta", "Incorrecta", "Incorrecta", "Incorrecta"],
+                "correct": 0
+            },
+            {
+                "question": "¿Pregunta 5?",
+                "answers": ["Incorrecta", "Incorrecta", "Incorrecta", "Correcta"],
+                "correct": 3
+            },
+            {
+                "question": "¿Pregunta 6?",
+                "answers": ["Incorrecta", "Correcta", "Incorrecta", "Incorrecta"],
+                "correct": 1
+            },
+            {
+                "question": "¿Pregunta 7?",
+                "answers": ["Incorrecta", "Incorrecta", "Correcta", "Incorrecta"],
+                "correct": 2
+            },
+            {
+                "question": "¿Pregunta 8?",
+                "answers": ["Correcta", "Incorrecta", "Incorrecta", "Incorrecta"],
+                "correct": 0
+            },
+            {
+                "question": "¿Pregunta 9?",
+                "answers": ["Incorrecta", "Incorrecta", "Incorrecta", "Correcta"],
+                "correct": 3
+            },
+            {
+                "question": "¿Pregunta 10?",
+                "answers": ["Correcta", "Incorrecta", "Incorrecta", "Incorrecta"],
                 "correct": 0
             }
         ]
@@ -42,3 +73,6 @@ class QuizHandler:
             correct_index = self.questions[self.current_question_index]["correct"]
             return answer_index == correct_index
         return False
+
+    def get_current_question_number(self):
+        return self.current_question_index  # Devuelve el índice de la pregunta actual
